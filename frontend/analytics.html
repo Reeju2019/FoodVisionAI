@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodVisionAI - Analysis Results</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/error-handler.js"></script>
+    <style>
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .confidence-bar {
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8" x-data="analyticsApp()">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">🍽️ FoodVisionAI Analysis</h1>
+            <p class="text-gray-600">Real-time AI-powered food analysis results</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-6xl mx-auto">
+            <!-- Status Card -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Analysis Status</h2>
+                    <div class="flex items-center space-x-2">
+                        <div 
+                            class="w-3 h-3 rounded-full"
+                            :class="{
+                                'bg-yellow-400 pulse-animation': status === 'processing',
+                                'bg-green-400': status === 'completed',
+                                'bg-red-400': status === 'failed',
+                                'bg-gray-400': status === 'pending'
+                            }"
+                        ></div>
+                        <span 
+                            class="text-sm font-medium capitalize"
+                            :class="{
+                                'text-yellow-600': status === 'processing',
+                                'text-green-600': status === 'completed',
+                                'text-red-600': status === 'failed',
+                                'text-gray-600': status === 'pending'
+                            }"
+                            x-text="status"
+                        ></span>
+                    </div>
+                </div>
+                
+                <!-- Image Info -->
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="flex-shrink-0">
+                        <img 
+                            :src="imageUrl" 
+                            alt="Uploaded food image"
+                            class="w-20 h-20 object-cover rounded-lg shadow-md"
+                            x-show="imageUrl"
+                        >
+                        <div 
+                            class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center"
+                            x-show="!imageUrl"
+                        >
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Image ID</p>
+                        <p class="font-mono text-sm text-gray-800" x-text="imageId"></p>
+                        <p class="text-xs text-gray-500 mt-1" x-text="formatTimestamp(lastUpdated)"></p>
+                    </div>
+                </div>
+                
+                <!-- Academic Pipeline Progress -->
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">🎓 Academic 3-Stage Pipeline</h3>
+                        <p class="text-xs text-gray-500">Deep Learning & GenAI Food Analysis System</p>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Stage 1</span>
+                            <span class="text-sm font-medium text-gray-700">CNN Ingredient Detection</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div 
+                                    class="bg-blue-600 h-2 rounded-full progress-bar"
+                                    :style="`width: ${progress.vision}%`"
+                                ></div>
+                            </div>
+                            <span class="text-xs text-gray-500" x-text="`${progress.vision}%`"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Stage 2</span>
+                            <span class="text-sm font-medium text-gray-700">GenAI Dish Identification</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div 
+                                    class="bg-green-600 h-2 rounded-full progress-bar"
+                                    :style="`width: ${progress.cuisine}%`"
+                                ></div>
+                            </div>
+                            <span class="text-xs text-gray-500" x-text="`${progress.cuisine}%`"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Stage 3</span>
+                            <span class="text-sm font-medium text-gray-700">Nutrition Database Lookup</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div 
+                                    class="bg-purple-600 h-2 rounded-full progress-bar"
+                                    :style="`width: ${progress.nutrition}%`"
+                                ></div>
+                            </div>
+                            <span class="text-xs text-gray-500" x-text="`${progress.nutrition}%`"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Stage 1: CNN Ingredient Detection -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 fade-in" x-show="results.vision">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Stage 1: CNN Vision</h3>
+                            <p class="text-xs text-blue-600">Ingredient Detection</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Description -->
+                        <div x-show="results.vision?.description">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Description</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed" x-text="results.vision?.description"></p>
+                        </div>
+                        
+                        <!-- Ingredients -->
+                        <div x-show="results.vision?.ingredients?.length > 0">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Ingredients</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="ingredient in results.vision?.ingredients" :key="ingredient">
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full" x-text="ingredient"></span>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <!-- Confidence -->
+                        <div x-show="results.vision?.confidence">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Confidence</h4>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div 
+                                        class="bg-blue-600 h-2 rounded-full confidence-bar"
+                                        :style="`width: ${(results.vision?.confidence || 0) * 100}%`"
+                                    ></div>
+                                </div>
+                                <span class="text-sm text-gray-600" x-text="`${Math.round((results.vision?.confidence || 0) * 100)}%`"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 3: Nutrition Database Lookup -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 fade-in" x-show="results.nutrition">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Stage 3: Nutrition</h3>
+                            <p class="text-xs text-purple-600">Database Lookup</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Macronutrients -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <p class="text-2xl font-bold text-green-700" x-text="results.nutrition?.calories || 0"></p>
+                                <p class="text-xs text-green-600">Calories</p>
+                            </div>
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <p class="text-2xl font-bold text-green-700" x-text="`${results.nutrition?.protein || 0}g`"></p>
+                                <p class="text-xs text-green-600">Protein</p>
+                            </div>
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <p class="text-2xl font-bold text-green-700" x-text="`${results.nutrition?.carbohydrates || 0}g`"></p>
+                                <p class="text-xs text-green-600">Carbs</p>
+                            </div>
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <p class="text-2xl font-bold text-green-700" x-text="`${results.nutrition?.fat || 0}g`"></p>
+                                <p class="text-xs text-green-600">Fat</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Portion Size -->
+                        <div x-show="results.nutrition?.portion_size">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Portion Size</h4>
+                            <p class="text-gray-600 text-sm" x-text="results.nutrition?.portion_size"></p>
+                        </div>
+                        
+                        <!-- Confidence Range -->
+                        <div x-show="results.nutrition?.confidence_range">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Confidence Range</h4>
+                            <p class="text-gray-600 text-sm" x-text="results.nutrition?.confidence_range"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cuisine Classification Results -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 fade-in" x-show="results.cuisine">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Cuisine Classification</h3>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <template x-for="cuisine in results.cuisine?.cuisines || []" :key="cuisine.name">
+                            <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                <div class="flex-1">
+                                    <p class="font-medium text-purple-800" x-text="cuisine.name"></p>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <div class="flex-1 bg-purple-200 rounded-full h-2">
+                                            <div 
+                                                class="bg-purple-600 h-2 rounded-full confidence-bar"
+                                                :style="`width: ${(cuisine.confidence || 0) * 100}%`"
+                                            ></div>
+                                        </div>
+                                        <span class="text-sm text-purple-600" x-text="`${Math.round((cuisine.confidence || 0) * 100)}%`"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <div x-show="!results.cuisine?.cuisines?.length" class="text-center py-4">
+                            <p class="text-gray-500 text-sm">No cuisine classifications available yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Messages -->
+            <div x-show="errors.length > 0" class="mt-8 bg-red-50 border border-red-200 rounded-2xl p-6">
+                <div class="flex items-center mb-4">
+                    <svg class="w-6 h-6 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-red-800">Processing Errors</h3>
+                </div>
+                <div class="space-y-2">
+                    <template x-for="error in errors" :key="error">
+                        <p class="text-red-700 text-sm" x-text="error"></p>
+                    </template>
+                </div>
+                <button 
+                    @click="retryAnalysis()"
+                    class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                >
+                    Retry Analysis
+                </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-8 text-center space-x-4">
+                <button 
+                    @click="window.location.href = '/api/v1/upload'"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                    Analyze Another Image
+                </button>
+                <button 
+                    @click="refreshAnalysis()"
+                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                    :disabled="isRefreshing"
+                >
+                    <span x-show="!isRefreshing">Refresh Results</span>
+                    <span x-show="isRefreshing">Refreshing...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function analyticsApp() {
+            return {
+                imageId: '',
+                imageUrl: '',
+                status: 'pending',
+                progress: {
+                    vision: 0,
+                    nutrition: 0,
+                    cuisine: 0
+                },
+                results: {
+                    vision: null,
+                    nutrition: null,
+                    cuisine: null
+                },
+                errors: [],
+                lastUpdated: null,
+                isRefreshing: false,
+                pollInterval: null,
+                retryCount: 0,
+                maxRetries: 3,
+                baseDelay: 2000, // 2 seconds base delay
+
+                init() {
+                    // Extract image ID from URL
+                    const pathParts = window.location.pathname.split('/');
+                    this.imageId = pathParts[pathParts.length - 1];
+                    
+                    if (this.imageId) {
+                        this.startPolling();
+                    } else {
+                        this.errors.push('Invalid image ID in URL');
+                    }
+                },
+
+                async startPolling() {
+                    await this.fetchStatus();
+                    
+                    // Set up smart polling with exponential backoff
+                    this.scheduleNextPoll();
+                },
+
+                scheduleNextPoll() {
+                    if (this.status === 'completed' || this.status === 'failed') {
+                        // Stop polling when analysis is complete
+                        return;
+                    }
+                    
+                    // Calculate delay with exponential backoff
+                    const delay = this.baseDelay * Math.pow(1.5, Math.min(this.retryCount, 5));
+                    
+                    this.pollInterval = setTimeout(() => {
+                        this.fetchStatus().then(() => {
+                            this.scheduleNextPoll();
+                        });
+                    }, delay);
+                },
+
+                async fetchStatus() {
+                    try {
+                        const response = await fetch(`/api/v1/status/${this.imageId}`);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        
+                        const data = await response.json();
+                        this.updateStatus(data);
+                        this.retryCount = 0; // Reset retry count on success
+                        
+                    } catch (error) {
+                        console.error('Error fetching status:', error);
+                        this.retryCount++;
+                        
+                        if (this.retryCount >= this.maxRetries) {
+                            const errorMsg = `Failed to fetch status after ${this.maxRetries} attempts: ${error.message}`;
+                            this.errors.push(errorMsg);
+                            this.status = 'failed';
+                            
+                            // Use enhanced error handling
+                            if (window.errorHandler) {
+                                errorHandler.handleNetworkError(error, 'Status polling failed');
+                            }
+                        }
+                    }
+                },
+
+                updateStatus(data) {
+                    this.status = data.status || 'pending';
+                    this.lastUpdated = data.last_updated || new Date().toISOString();
+                    
+                    // Update progress
+                    if (data.progress) {
+                        this.progress.vision = data.progress.vision?.completed ? 100 : (data.progress.vision?.progress || 0) * 100;
+                        this.progress.nutrition = data.progress.nutrition?.completed ? 100 : (data.progress.nutrition?.progress || 0) * 100;
+                        this.progress.cuisine = data.progress.cuisine?.completed ? 100 : (data.progress.cuisine?.progress || 0) * 100;
+                    }
+                    
+                    // Update results
+                    if (data.results) {
+                        this.results = { ...this.results, ...data.results };
+                        
+                        // Extract image URL if available
+                        if (data.results.vision?.image_url || data.image_url) {
+                            this.imageUrl = data.results.vision?.image_url || data.image_url;
+                        }
+                    }
+                    
+                    // Update errors
+                    if (data.errors && data.errors.length > 0) {
+                        this.errors = [...this.errors, ...data.errors];
+                    }
+                },
+
+                async refreshAnalysis() {
+                    this.isRefreshing = true;
+                    await this.fetchStatus();
+                    this.isRefreshing = false;
+                },
+
+                async retryAnalysis() {
+                    // Clear errors and reset status
+                    this.errors = [];
+                    this.retryCount = 0;
+                    this.status = 'processing';
+                    
+                    // Restart polling
+                    this.startPolling();
+                },
+
+                formatTimestamp(timestamp) {
+                    if (!timestamp) return '';
+                    
+                    try {
+                        const date = new Date(timestamp);
+                        return `Last updated: ${date.toLocaleTimeString()}`;
+                    } catch (error) {
+                        return '';
+                    }
+                },
+
+                destroy() {
+                    // Clean up polling interval when component is destroyed
+                    if (this.pollInterval) {
+                        clearTimeout(this.pollInterval);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

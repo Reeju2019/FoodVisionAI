@@ -1,0 +1,45 @@
+# Core FastAPI and web framework dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+jinja2==3.1.2
+
+# Database dependencies
+pymongo==4.6.0
+motor==3.3.2
+
+# Machine Learning and AI dependencies
+torch>=2.2.0
+torchvision>=0.17.0
+transformers>=4.36.0
+pillow>=10.1.0
+numpy>=1.24.3
+opencv-python>=4.8.0
+
+# Google Drive integration
+google-api-python-client==2.108.0
+google-auth-httplib2==0.1.1
+google-auth-oauthlib==1.1.0
+
+# HTTP client for image processing
+requests==2.31.0
+aiohttp==3.9.1
+
+# Data validation and serialization
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Testing dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+hypothesis==6.92.1
+httpx==0.25.2
+
+# Utility dependencies
+python-dotenv==1.0.0
+loguru==0.7.2
+psutil==5.9.6
+
+# Generative AI
+google-generativeai>=0.3.0

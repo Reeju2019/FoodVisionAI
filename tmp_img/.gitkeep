@@ -1,0 +1,3 @@
+# This file ensures the tmp_img directory is tracked by git
+# Temporary images themselves are ignored via .gitignore
+

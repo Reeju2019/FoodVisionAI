@@ -1,0 +1,224 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.kiro
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# FoodVisionAI specific
+logs/*.log
+logs/*.json
+!logs/.gitkeep
+models/*.pth
+models/*.pkl
+!models/.gitkeep
+*.pth
+*.pkl
+credentials.json
+temp_images/
+uploads/*
+!uploads/.gitkeep
+tmp_img/*
+!tmp_img/.gitkeep
+
+# Sensitive data
+.env
+.env.local
+.env.production
+*.key
+*.pem
+service-account.json
+
+# Dataset folders (too large for git - DO NOT UPLOAD)
+german_food_dataset/
+bengali_food_dataset/
+german_food_test/
+datasets/
+
+# Model files (too large for git - DO NOT UPLOAD)
+# blip2_german_food_lora/
+# *.safetensors
+*.bin
+# models/*.pth
+# models/*.pkl
+
+# Training outputs
+checkpoints/
+runs/
+wandb/
+
+# Temporary/test files
+test_*.jpg
+test_*.jpeg
+test_*.png
+pipeline_test_results.json
+
+# Documentation (moved to docs/)
+docs/CLEANUP_SUMMARY.md
+docs/DEPLOYMENT_READY.md
+docs/FINAL_PRESENTATION.md
+docs/GERMAN_FOOD_INTEGRATION.md
+docs/HOW_TO_RUN.txt
+docs/PRESENTATION_*.md
+docs/PRESENTATION_*.txt
+docs/QUICK_START.md
+docs/README_FINAL.md
+docs/SPEAKER_NOTES.md
+docs/START_HERE.md
+
+# Training artifacts
+*.tar
+*.tar.gz
+*.lmdb
+*.mdb
+
+# Archives
+*.rar
+*.zip
+*.7z
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Production
+.env.production
+docker-compose.override.yml

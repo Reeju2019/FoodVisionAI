@@ -1,0 +1,133 @@
+{
+  "ingredient_combinations": [
+    {
+      "test_case": "Simple Pasta Dish",
+      "status": "WARNING",
+      "nutrition": "NutritionalValues(calories=1435.0, fat=134.3, carbohydrates=30.2, protein=30.9, fiber=3.0, sugar=9.1, sodium=400, confidence=0.7, confidence_level=<ConfidenceLevel.HIGH: 'high'>, portion_size='1 serving', portion_weight_grams=150, portion_certainty=0.7, confidence_range='\u00b112%', confidence_lower_bound=0.6133333333333334, confidence_upper_bound=0.8533333333333334, per_serving_breakdown={'per_100g': {'calories': 956.7, 'fat': 89.5, 'carbohydrates': 20.1, 'protein': 20.6}, 'per_serving': {'calories': 1435.0, 'fat': 134.3, 'carbohydrates': 30.2, 'protein': 30.9}, 'per_half_serving': {'calories': 717.5, 'fat': 67.2, 'carbohydrates': 15.1, 'protein': 15.4}})",
+      "within_range": false
+    },
+    {
+      "test_case": "Chicken Salad",
+      "status": "WARNING",
+      "nutrition": "NutritionalValues(calories=1082.0, fat=104.0, carbohydrates=6.8, protein=33.3, fiber=2.5, sugar=2.0, sodium=400, confidence=0.7, confidence_level=<ConfidenceLevel.HIGH: 'high'>, portion_size='1 large bowl', portion_weight_grams=100, portion_certainty=0.7, confidence_range='\u00b112%', confidence_lower_bound=0.6799999999999999, confidence_upper_bound=0.9199999999999999, per_serving_breakdown={'per_100g': {'calories': 1082.0, 'fat': 104.0, 'carbohydrates': 6.8, 'protein': 33.3}, 'per_serving': {'calories': 1082.0, 'fat': 104.0, 'carbohydrates': 6.8, 'protein': 33.3}, 'per_half_serving': {'calories': 541.0, 'fat': 52.0, 'carbohydrates': 3.4, 'protein': 16.6}})",
+      "within_range": false
+    },
+    {
+      "test_case": "Vegetarian Bowl",
+      "status": "WARNING",
+      "nutrition": "NutritionalValues(calories=205.0, fat=0.9, carbohydrates=44.6, protein=6.4, fiber=5.8, sugar=13.4, sodium=400, confidence=0.6000000000000001, confidence_level=<ConfidenceLevel.MEDIUM: 'medium'>, portion_size='1 cup cooked', portion_weight_grams=195, portion_certainty=0.7, confidence_range='\u00b112%', confidence_lower_bound=0.5800000000000001, confidence_upper_bound=0.8200000000000001, per_serving_breakdown={'per_100g': {'calories': 105.1, 'fat': 0.5, 'carbohydrates': 22.9, 'protein': 3.3}, 'per_serving': {'calories': 205.0, 'fat': 0.9, 'carbohydrates': 44.6, 'protein': 6.4}, 'per_half_serving': {'calories': 102.5, 'fat': 0.5, 'carbohydrates': 22.3, 'protein': 3.2}})",
+      "within_range": false
+    },
+    {
+      "test_case": "Breakfast Sandwich",
+      "status": "WARNING",
+      "nutrition": "NutritionalValues(calories=1539.0, fat=128.2, carbohydrates=51.5, protein=47.9, fiber=2.7, sugar=15.4, sodium=400, confidence=0.7, confidence_level=<ConfidenceLevel.HIGH: 'high'>, portion_size='1 sandwich', portion_weight_grams=150, portion_certainty=0.7, confidence_range='\u00b112%', confidence_lower_bound=0.6133333333333334, confidence_upper_bound=0.8533333333333334, per_serving_breakdown={'per_100g': {'calories': 1026.0, 'fat': 85.5, 'carbohydrates': 34.3, 'protein': 31.9}, 'per_serving': {'calories': 1539.0, 'fat': 128.2, 'carbohydrates': 51.5, 'protein': 47.9}, 'per_half_serving': {'calories': 769.5, 'fat': 64.1, 'carbohydrates': 25.8, 'protein': 23.9}})",
+      "within_range": false
+    },
+    {
+      "test_case": "Fish and Chips",
+      "status": "WARNING",
+      "nutrition": "NutritionalValues(calories=1167.0, fat=112.1, carbohydrates=17.0, protein=24.0, fiber=2.2, sugar=5.1, sodium=400, confidence=0.6000000000000001, confidence_level=<ConfidenceLevel.MEDIUM: 'medium'>, portion_size='1 fillet (4 oz)', portion_weight_grams=120, portion_certainty=0.7, confidence_range='\u00b118%', confidence_lower_bound=0.4533333333333334, confidence_upper_bound=0.8133333333333335, per_serving_breakdown={'per_100g': {'calories': 972.5, 'fat': 93.4, 'carbohydrates': 14.2, 'protein': 20.0}, 'per_serving': {'calories': 1167.0, 'fat': 112.1, 'carbohydrates': 17.0, 'protein': 24.0}, 'per_half_serving': {'calories': 583.5, 'fat': 56.0, 'carbohydrates': 8.5, 'protein': 12.0}})",
+      "within_range": false
+    }
+  ],
+  "edge_cases": [
+    {
+      "test_case": "Empty Ingredients List",
+      "status": "PASS",
+      "confidence": 0.3,
+      "confidence_level": "low"
+    },
+    {
+      "test_case": "Single Ingredient",
+      "status": "PASS",
+      "confidence": 0.4,
+      "confidence_level": "low"
+    },
+    {
+      "test_case": "Unclear Ingredients",
+      "status": "PASS",
+      "confidence": 0.3,
+      "confidence_level": "low"
+    },
+    {
+      "test_case": "Many Ingredients",
+      "status": "PASS",
+      "confidence": 0.8,
+      "confidence_level": "high"
+    },
+    {
+      "test_case": "Conflicting Information",
+      "status": "PASS",
+      "confidence": 0.3,
+      "confidence_level": "low"
+    }
+  ],
+  "portion_estimation": [
+    {
+      "description": "A slice of pizza",
+      "portion_size": "1 slice (medium pizza)",
+      "portion_weight": 120,
+      "portion_certainty": 0.7,
+      "has_breakdown": true,
+      "status": "PASS"
+    },
+    {
+      "description": "A hamburger with fries",
+      "portion_size": "1 burger",
+      "portion_weight": 200,
+      "portion_certainty": 0.7,
+      "has_breakdown": true,
+      "status": "PASS"
+    },
+    {
+      "description": "A bowl of pasta",
+      "portion_size": "1 cup cooked",
+      "portion_weight": 140,
+      "portion_certainty": 0.7,
+      "has_breakdown": true,
+      "status": "PASS"
+    },
+    {
+      "description": "A chicken breast",
+      "portion_size": "1 breast (4 oz)",
+      "portion_weight": 120,
+      "portion_certainty": 0.7,
+      "has_breakdown": true,
+      "status": "PASS"
+    }
+  ],
+  "confidence_ranges": [
+    {
+      "case": "High Confidence Case",
+      "confidence": 0.6000000000000001,
+      "confidence_level": "medium",
+      "confidence_range": "\u00b118%",
+      "range_valid": true,
+      "bounds_valid": true,
+      "status": "PASS"
+    },
+    {
+      "case": "Medium Confidence Case",
+      "confidence": 0.3,
+      "confidence_level": "low",
+      "confidence_range": "\u00b135%",
+      "range_valid": true,
+      "bounds_valid": true,
+      "status": "PASS"
+    },
+    {
+      "case": "Low Confidence Case",
+      "confidence": 0.3,
+      "confidence_level": "low",
+      "confidence_range": "\u00b150%",
+      "range_valid": true,
+      "bounds_valid": true,
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "total_tests": 17,
+    "success": true
+  }
+}

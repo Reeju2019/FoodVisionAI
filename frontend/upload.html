@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodVisionAI - Upload Food Image</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/error-handler.js"></script>
+    <style>
+        .drag-over {
+            @apply border-blue-400 bg-blue-50;
+        }
+        .file-preview {
+            max-width: 300px;
+            max-height: 300px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8" x-data="uploadApp()">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">🍽️ FoodVisionAI</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Upload a food image to get instant nutritional analysis, ingredient identification, and cuisine classification powered by AI
+            </p>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Upload Your Food Image</h2>
+                
+                <!-- File Drop Zone -->
+                <div 
+                    class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer"
+                    :class="{ 'border-blue-400 bg-blue-50': isDragOver, 'border-red-400 bg-red-50': hasError }"
+                    @dragover.prevent="isDragOver = true"
+                    @dragleave.prevent="isDragOver = false"
+                    @drop.prevent="handleDrop($event)"
+                    @click="$refs.fileInput.click()"
+                >
+                    <input 
+                        type="file" 
+                        x-ref="fileInput"
+                        accept="image/*"
+                        class="hidden"
+                        @change="handleFileSelect($event)"
+                    >
+                    
+                    <!-- Upload Icon and Text -->
+                    <div x-show="!selectedFile && !isUploading">
+                        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <p class="text-xl text-gray-600 mb-2">Drop your food image here</p>
+                        <p class="text-sm text-gray-500 mb-4">or click to browse your files</p>
+                        <div class="flex justify-center space-x-2 text-xs text-gray-400">
+                            <span>JPEG</span>
+                            <span>•</span>
+                            <span>PNG</span>
+                            <span>•</span>
+                            <span>WebP</span>
+                            <span>•</span>
+                            <span>Max 10MB</span>
+                        </div>
+                    </div>
+                    
+                    <!-- File Preview -->
+                    <div x-show="selectedFile && !isUploading" class="space-y-4">
+                        <img 
+                            :src="previewUrl" 
+                            :alt="selectedFile?.name"
+                            class="file-preview mx-auto rounded-lg shadow-md"
+                            x-show="previewUrl"
+                        >
+                        <div class="text-center">
+                            <p class="text-lg font-medium text-gray-700" x-text="selectedFile?.name"></p>
+                            <p class="text-sm text-gray-500" x-text="formatFileSize(selectedFile?.size)"></p>
+                        </div>
+                        <div class="flex justify-center space-x-4">
+                            <button 
+                                @click.stop="clearFile()"
+                                class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Remove
+                            </button>
+                            <button 
+                                @click.stop="uploadFile()"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                            >
+                                Analyze Food
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Progress -->
+                    <div x-show="isUploading" class="space-y-6">
+                        <!-- Animated upload icon -->
+                        <div class="relative mx-auto w-16 h-16">
+                            <div class="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- Upload stages -->
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600">Uploading image...</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                                    <span class="text-blue-600 font-medium" x-text="uploadStage"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress bar -->
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                    class="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                                    :style="`width: ${uploadProgress}%`"
+                                ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <p class="text-lg text-blue-600 font-medium">Processing your food image</p>
+                            <p class="text-sm text-gray-500 mt-1">AI analysis will begin shortly...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error Message -->
+                <div x-show="errorMessage" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-red-800 font-medium" x-text="errorMessage"></p>
+                    </div>
+                </div>
+                
+                <!-- Success Message -->
+                <div x-show="successMessage" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <p class="text-green-800 font-medium" x-text="successMessage"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center p-6 bg-white rounded-xl shadow-md">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">AI Vision Analysis</h3>
+                    <p class="text-gray-600 text-sm">Advanced computer vision identifies ingredients and food components</p>
+                </div>
+                
+                <div class="text-center p-6 bg-white rounded-xl shadow-md">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Nutrition Facts</h3>
+                    <p class="text-gray-600 text-sm">Detailed nutritional breakdown including calories, macros, and portions</p>
+                </div>
+                
+                <div class="text-center p-6 bg-white rounded-xl shadow-md">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Cuisine Classification</h3>
+                    <p class="text-gray-600 text-sm">Identify cultural origins and cuisine types with confidence scores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function uploadApp() {
+            return {
+                selectedFile: null,
+                previewUrl: null,
+                isDragOver: false,
+                isUploading: false,
+                errorMessage: '',
+                successMessage: '',
+                hasError: false,
+                uploadProgress: 0,
+                uploadStage: 'Preparing...',
+
+                init() {
+                    // Clear any previous state
+                    this.clearMessages();
+                },
+
+                handleDrop(event) {
+                    this.isDragOver = false;
+                    const files = event.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.handleFile(files[0]);
+                    }
+                },
+
+                handleFileSelect(event) {
+                    const files = event.target.files;
+                    if (files.length > 0) {
+                        this.handleFile(files[0]);
+                    }
+                },
+
+                handleFile(file) {
+                    this.clearMessages();
+                    
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        if (window.errorHandler) {
+                            errorHandler.handleFileError(file, 'Invalid file type');
+                        } else {
+                            this.showError('Please select an image file (JPEG, PNG, WebP, etc.)');
+                        }
+                        return;
+                    }
+                    
+                    // Validate file size (10MB limit)
+                    if (file.size > 10 * 1024 * 1024) {
+                        if (window.errorHandler) {
+                            errorHandler.handleFileError(file, 'File too large');
+                        } else {
+                            this.showError('File size must be less than 10MB');
+                        }
+                        return;
+                    }
+                    
+                    this.selectedFile = file;
+                    this.createPreview(file);
+                },
+
+                createPreview(file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.previewUrl = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+
+                clearFile() {
+                    this.selectedFile = null;
+                    this.previewUrl = null;
+                    this.clearMessages();
+                    this.$refs.fileInput.value = '';
+                },
+
+                async uploadFile() {
+                    if (!this.selectedFile) return;
+                    
+                    this.isUploading = true;
+                    this.clearMessages();
+                    this.uploadProgress = 0;
+                    this.uploadStage = 'Preparing...';
+                    
+                    // Simulate upload progress
+                    this.simulateUploadProgress();
+                    
+                    const formData = new FormData();
+                    formData.append('file', this.selectedFile);
+                    
+                    try {
+                        this.uploadStage = 'Uploading...';
+                        const response = await fetch('/api/v1/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (response.ok) {
+                            this.uploadProgress = 100;
+                            this.uploadStage = 'Complete!';
+                            this.showSuccess('Upload successful! Redirecting to analysis...');
+                            // Redirect to analytics page after a short delay
+                            setTimeout(() => {
+                                window.location.href = `/api/v1/analytics/${result.image_id}`;
+                            }, 1500);
+                        } else {
+                            throw new Error(result.detail || 'Upload failed');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        this.uploadProgress = 0;
+                        this.uploadStage = 'Failed';
+                        
+                        // Use enhanced error handling
+                        if (window.errorHandler) {
+                            errorHandler.handleNetworkError(error, 'Upload failed');
+                        } else {
+                            this.showError(`Upload failed: ${error.message}`);
+                        }
+                        this.isUploading = false;
+                    }
+                },
+
+                simulateUploadProgress() {
+                    // Simulate realistic upload progress
+                    const intervals = [
+                        { progress: 20, delay: 200, stage: 'Validating...' },
+                        { progress: 40, delay: 300, stage: 'Uploading...' },
+                        { progress: 70, delay: 500, stage: 'Processing...' },
+                        { progress: 90, delay: 300, stage: 'Finalizing...' }
+                    ];
+                    
+                    intervals.forEach((interval, index) => {
+                        setTimeout(() => {
+                            if (this.isUploading) {
+                                this.uploadProgress = interval.progress;
+                                this.uploadStage = interval.stage;
+                            }
+                        }, intervals.slice(0, index + 1).reduce((sum, int) => sum + int.delay, 0));
+                    });
+                },
+
+                showError(message) {
+                    this.errorMessage = message;
+                    this.hasError = true;
+                    this.successMessage = '';
+                    // Also use global error handler for better UX
+                    if (window.errorHandler) {
+                        errorHandler.showError(message, { duration: 6000 });
+                    }
+                },
+
+                showSuccess(message) {
+                    this.successMessage = message;
+                    this.errorMessage = '';
+                    this.hasError = false;
+                    // Also use global error handler for success messages
+                    if (window.errorHandler) {
+                        errorHandler.showSuccess(message);
+                    }
+                },
+
+                clearMessages() {
+                    this.errorMessage = '';
+                    this.successMessage = '';
+                    this.hasError = false;
+                },
+
+                formatFileSize(bytes) {
+                    if (!bytes) return '';
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+                }
+            }
+        }
+    </script>
+</body>
+</html>
