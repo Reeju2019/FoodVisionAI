@@ -65,7 +65,7 @@ networks:
 docker-compose up -d mongodb
 ```
 
-**Connection String**: `mongodb://admin:password@localhost:27017/foodvision_ai?authSource=admin`
+**Connection String**: `mongodb://<admin>:<password>@localhost:27017/foodvision_ai?authSource=admin`
 
 ---
 
